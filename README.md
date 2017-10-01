@@ -1,2 +1,2 @@
 # GrrrTests-sc
-Test suite for Grrr-sc
+Unit tests for (Grrr-sc)[http://github.com/antonhornquist/Grrr-sc]
