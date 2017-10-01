@@ -20,7 +20,7 @@ MockActionListener {
 
 	hasNotBeenNotifiedOfAnything { ^notifications.isEmpty }
 
-	resetNotifications {
+	resetNotifications { // TODO: should be prResetNotifications or just in init and not to be used in tests
 		notifications = Array.new;
 	}
 
