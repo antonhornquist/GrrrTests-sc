@@ -9,7 +9,7 @@ MockActionListener {
 		view = argView;
 		listener = this.prCreateListener(view);
 		view.addAction(listener, this.prSelector);
-		this.resetNotifications;
+		notifications = Array.new;
 	}
 
 	removeListener {
@@ -19,10 +19,6 @@ MockActionListener {
 	hasBeenNotifiedOf { |array| ^notifications == array }
 
 	hasNotBeenNotifiedOfAnything { ^notifications.isEmpty }
-
-	resetNotifications { // TODO: should be prResetNotifications or just in init and not to be used in tests
-		notifications = Array.new;
-	}
 
 	prCreateListener { |view|
 		^{ |... args| notifications = notifications.add( args ) }
@@ -144,8 +140,8 @@ MockContainerViewSubclassThatActsAsAView : GRContainerView {
 		var button1;
 		var button2;
 		actsAsView = true;
-		button1 = Button.newDetached(1, 1);
-		button2 = Button.newDetached(1, 1);
+		button1 = GRButton.newDetached(1, 1);
+		button2 = GRButton.newDetached(1, 1);
 		this.prAddChild(button1, Point.new(3, 0), true);
 		this.prAddChild(button2, Point.new(2, 1), true);
 	}
