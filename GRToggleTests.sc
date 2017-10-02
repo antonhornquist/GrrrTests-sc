@@ -1,7 +1,6 @@
 GRToggleTests : Test {
 	var
 		smallHorizontalToggle4x1,
-		largeHorizontalToggle8x2,
 		gotLed
 	;
 
@@ -9,299 +8,549 @@ GRToggleTests : Test {
 		GRTestsHelper.saveGlobals;
 		GRTestsHelper.disableTraceAndFlash;
 		smallHorizontalToggle4x1 = GRHToggle.newDetached(4, 1);
-		largeHorizontalToggle8x2 = GRHToggle.newDetached(8, 2);
-		gotLed = Array.new;
+		smallHorizontalToggle4x1.id = \smallHorizontalToggle4x1;
 	}
 
 	teardown {
 		GRTestsHelper.restoreGlobals;
 	}
 
-	addTestLedEventListener { |view|
-		var listener;
-		listener = { |source, point, on|
-			gotLed = gotLed.add( ( source: source.id, point: point, on: on ) );
-		};
-		view.addLedEventListener(listener);
-		^listener
+	// initialization
+	test_a_toggle_should_by_default_be_coupled_and_have_value_0 {
+		var toggle = GRHToggle.newDetached;
+		this.assert(toggle.isCoupled);
+		this.assertEqual(0, toggle.value);
 	}
 
-	// Tests
-	test_defaults {
-		var view = smallHorizontalToggle4x1;
-		this.assertEqual(0, view.value);
-		this.assert(view.isCoupled);
+	test_a_horizontal_toggle_should_by_default_be_4x1 {
+		var toggle = GRHToggle.newDetached;
+		this.assertEqual(4, toggle.numCols);
+		this.assertEqual(1, toggle.numRows);
 	}
 
-	test_its_possible_to_create_a_decoupled_toggle_from_scratch {
-		this.assertEqual(false, GRHToggle.newDecoupled(nil, nil, 8, 2).isCoupled);
+	test_when_only_num_cols_is_supplied_on_creation_a_horizontal_toggle_should_get_num_rows_1 {
+		var toggle = GRHToggle.newDetached(8);
+		this.assertEqual(1, toggle.numRows);
 	}
 
-	test_its_possible_to_change_value {
-		var
-			view = largeHorizontalToggle8x2
-		;
-
-		view.value = 2;
-		this.assertEqual(2, view.value);
-
-		view.value = 4;
-		this.assertEqual(4, view.value);
-
-		view.value = nil;
-		this.assertEqual(nil, view.value);
-
-		this.assertErrorThrown(Error) { view.value = 8 };
-		this.assertErrorThrown(Error) { view.value = -1 };
+	test_a_vertical_toggle_should_by_default_be_1x4 {
+		var toggle = GRVToggle.newDetached;
+		this.assertEqual(1, toggle.numCols);
+		this.assertEqual(4, toggle.numRows);
 	}
 
-	test_a_value_change_sets_new_value_and_refreshes_leds {
-		var toggle, gotAction, gotPressAction;
-		toggle = GRHToggle.newDetached(4, 1);
-		toggle.id = \toggle;
+	test_when_only_num_rows_is_supplied_on_creation_a_vertical_toggle_should_get_num_cols_1 {
+		var toggle = GRVToggle.newDetached(nil, 8);
+		this.assertEqual(1, toggle.numCols);
+	}
 
-		this.addTestLedEventListener(toggle);
+	test_it_should_be_possible_to_create_a_decoupled_toggle_from_scratch {
+		var toggle = GRHToggle.newDecoupled(nil, nil, 1, 1);
+		this.assertEqual(false, toggle.isCoupled);
+	}
 
-		gotAction = nil;
-		toggle.action = { |toggle, value|
-			gotAction = ( toggle: toggle, value: value )
-		};
+	test_it_should_be_possible_to_create_a_nillable_toggle_from_scratch {
+		var toggle = GRHToggle.newNillable(nil, nil, 1, 1);
+		this.assert(toggle.isNillable);
+	}
 
-		gotPressAction = nil;
-		toggle.togglePressedAction = { |toggle, value, pressed|
-			gotPressAction = ( toggle: toggle, value: value, pressed: pressed )
-		};
+	// basic properties
+	test_it_should_be_possible_to_decouple_a_toggle {
+		var toggle = GRHToggle.newDetached;
+		toggle.coupled = false;
+		this.assertEqual(false, toggle.isCoupled);
+	}
+
+	test_it_should_be_possible_to_make_a_toggle_nillable {
+		var toggle = GRHToggle.newDetached;
+		toggle.nillable = true;
+		this.assert(toggle.isNillable);
+	}
+
+	// toggle pressed state and toggle events
+	test_a_single_view_button_press_event_should_make_a_toggle_pressed {
+		var toggle = smallHorizontalToggle4x1;
+		toggle.press(Point.new(2, 0));
+		this.assert(toggle.isPressed);
+	}
+
+	test_a_toggle_should_not_be_considered_released_until_all_view_buttons_are_released {
+		var toggle = smallHorizontalToggle4x1;
+
+		toggle.press(Point.new(0, 0));
+
+		this.assert(toggle.isPressed);
+
+		toggle.press(Point.new(1, 0));
+
+		this.assert(toggle.isPressed);
+
+		toggle.release(Point.new(0, 0));
+
+		this.assert(toggle.isPressed);
+
+		toggle.release(Point.new(1, 0));
+
+		this.assert(toggle.isReleased);
+	}
+
+	test_when_pressed_state_of_a_toggle_is_updated_toggle_pressed_and_released_actions_should_be_triggered {
+		var toggle = smallHorizontalToggle4x1;
+		var pressedListener = MockTogglePressedListener.new(toggle);
+		var releasedListener = MockToggleReleasedListener.new(toggle);
+
+		toggle.press(Point.new(0, 0));
+		this.assert( pressedListener.hasBeenNotifiedOf( [ [toggle] ] ) );
+
+		toggle.press(Point.new(1, 0));
+		this.assert( pressedListener.hasBeenNotifiedOf( [ [toggle] ] ) );
+
+		toggle.release(Point.new(0, 0));
+		this.assert( releasedListener.hasNotBeenNotifiedOfAnything );
+
+		toggle.release(Point.new(1, 0));
+		this.assert( releasedListener.hasBeenNotifiedOf( [ [toggle] ] ) );
+	}
+
+	test_every_view_button_press_event_on_a_toggle_should_trigger_toggle_value_pressed_action {
+		var toggle = smallHorizontalToggle4x1;
+		var listener = MockToggleValuePressedListener.new(toggle);
+
+		toggle.press(Point.new(2, 0));
+
+		this.assert(
+			listener.hasBeenNotifiedOf(
+				[ [toggle, 2] ]
+			)
+		);
+
+		toggle.press(Point.new(3, 0));
+
+		this.assert(
+			listener.hasBeenNotifiedOf(
+				[ [toggle, 2], [toggle, 3] ]
+			)
+		);
+
+		toggle.press(Point.new(0, 0));
+
+		this.assert(
+			listener.hasBeenNotifiedOf(
+				[ [toggle, 2], [toggle, 3], [toggle, 0] ]
+			)
+		);
+	}
+
+	test_if_several_buttons_get_pressed_on_view_and_the_min_and_max_values_of_the_pressed_buttons_get_changed_toggle_range_pressed_action_should_be_triggered { // TODO: this is fucking great, use it in an app
+		var toggle = smallHorizontalToggle4x1;
+		var listener = MockToggleRangePressedListener.new(toggle);
+
+		toggle.press(Point.new(1, 0));
+		toggle.press(Point.new(3, 0));
+
+		this.assert(
+			listener.hasBeenNotifiedOf(
+				[ [toggle, [1, 3]] ]
+			)
+		);
+	}
+
+	// led events and refresh
+	test_when_a_toggle_is_set_to_a_new_value_leds_should_be_refreshed_and_only_the_led_corresponding_to_the_value_should_be_lit {
+		var toggle = smallHorizontalToggle4x1;
+		var listener = MockViewLedRefreshedListener.new(toggle);
 
 		toggle.value = 3;
 
-		this.assertEqual(3, toggle.value);
-		this.assertEqual(
-			[
-				( source: \toggle, point: Point.new(0, 0), on: false ),
-				( source: \toggle, point: Point.new(1, 0), on: false ),
-				( source: \toggle, point: Point.new(2, 0), on: false ),
-				( source: \toggle, point: Point.new(3, 0), on: true )
-			],
-			gotLed
+		this.assert(
+			listener.hasBeenNotifiedOf(
+				[
+					( source: \smallHorizontalToggle4x1, point: Point.new(0, 0), on: false ),
+					( source: \smallHorizontalToggle4x1, point: Point.new(1, 0), on: false ),
+					( source: \smallHorizontalToggle4x1, point: Point.new(2, 0), on: false ),
+					( source: \smallHorizontalToggle4x1, point: Point.new(3, 0), on: true ),
+				]
+			)
 		);
-		this.assertEqual(
-			nil,
-			gotAction
-		);
-		this.assertEqual(
-			nil,
-			gotPressAction
-		);
+	}
 
-		gotLed = Array.new; // TODO: or reset_test_led_event_listener_x
-
-		gotAction = nil;
-		gotPressAction = nil;
+	test_when_a_nillable_toggle_is_set_to_a_nil_value_leds_should_be_refreshed_and_all_leds_should_be_unlit {
+		var toggle = smallHorizontalToggle4x1;
+		var listener;
+		toggle.nillable=true;
+		listener = MockViewLedRefreshedListener.new(toggle);
 
 		toggle.value = nil;
-		this.assertEqual(
-			[
-				( source: \toggle, point: Point.new(0, 0), on: false ),
-				( source: \toggle, point: Point.new(1, 0), on: false ),
-				( source: \toggle, point: Point.new(2, 0), on: false ),
-				( source: \toggle, point: Point.new(3, 0), on: false )
-			],
-			gotLed
-		);
-		this.assertEqual(
-			nil,
-			gotAction
-		);
-		this.assertEqual(
-			nil,
-			gotPressAction
+
+		this.assert(
+			listener.hasBeenNotifiedOf(
+				[
+					( source: \smallHorizontalToggle4x1, point: Point.new(0, 0), on: false ),
+					( source: \smallHorizontalToggle4x1, point: Point.new(1, 0), on: false ),
+					( source: \smallHorizontalToggle4x1, point: Point.new(2, 0), on: false ),
+					( source: \smallHorizontalToggle4x1, point: Point.new(3, 0), on: false ),
+				]
+			)
 		);
 	}
 
-	test_a_value_action_change_sets_new_value_refreshes_leds_and_trigger_actions {
-		var toggle, gotAction, gotPressAction;
+	test_if_a_non_nillable_toggle_is_set_to_a_nil_value_an_error_should_be_thrown {
+		var toggle = smallHorizontalToggle4x1;
 
-		toggle = GRHToggle.newDetached(4, 1);
-		toggle.id = \toggle;
+		this.assertErrorThrown(Error) { toggle.value = nil };
+	}
 
-		this.addTestLedEventListener(toggle);
+	// filled vs not filled
+	test_a_toggle_that_is_not_filled_should_only_have_the_led_correspoding_to_the_current_value_lit {
+		var toggle = GRHToggle.newDetached(4, 1);
+		toggle.value = 2;
 
-		gotAction = nil;
-		toggle.action = { |toggle, value|
-			gotAction = ( toggle: toggle, value: value )
-		};
+		this.assertEqual(
+			"  0 1 2 3      0 1 2 3\n" ++
+			"0 - - - -    0 - - L -\n",
+			toggle.asPlot
+		);
+	}
 
-		gotPressAction = nil;
-		toggle.togglePressedAction = { |toggle, value, pressed|
-			gotPressAction = ( toggle: toggle, value: value, pressed: pressed )
-		};
+	test_a_filled_toggle_should_have_all_leds_up_to_the_current_value_lit {
+		var toggle = GRHToggle.newDetached(4, 1);
+		toggle.filled = true;
+		toggle.value = 2;
 
-		toggle.valueAction = 3;
+		this.assertEqual(
+			"  0 1 2 3      0 1 2 3\n" ++
+			"0 - - - -    0 L L L -\n",
+			toggle.asPlot
+		);
+	}
 
+	test_when_toggle_is_set_filled_all_leds_should_automatically_refresh {
+		var toggle = smallHorizontalToggle4x1;
+		var listener;
+		toggle.value = 2;
+		listener = MockViewLedRefreshedListener.new(toggle);
+
+		toggle.filled = true;
+
+		this.assert(
+			listener.hasBeenNotifiedOf(
+				[
+					( source: \smallHorizontalToggle4x1, point: Point.new(0, 0), on: true ),
+					( source: \smallHorizontalToggle4x1, point: Point.new(1, 0), on: true ),
+					( source: \smallHorizontalToggle4x1, point: Point.new(2, 0), on: true ),
+					( source: \smallHorizontalToggle4x1, point: Point.new(3, 0), on: false ),
+				]
+			)
+		);
+	}
+
+	test_when_toggle_is_set_not_filled_all_leds_should_automatically_refresh {
+		var toggle = smallHorizontalToggle4x1;
+		var listener;
+		toggle.filled = true;
+		toggle.value = 2;
+		listener = MockViewLedRefreshedListener.new(toggle);
+
+		toggle.filled = false;
+
+		this.assert(
+			listener.hasBeenNotifiedOf(
+				[
+					( source: \smallHorizontalToggle4x1, point: Point.new(0, 0), on: false ),
+					( source: \smallHorizontalToggle4x1, point: Point.new(1, 0), on: false ),
+					( source: \smallHorizontalToggle4x1, point: Point.new(2, 0), on: true ),
+					( source: \smallHorizontalToggle4x1, point: Point.new(3, 0), on: false ),
+				]
+			)
+		);
+	}
+
+	// thumb size
+	test_a_vertical_toggle_should_by_default_have_thumb_width_set_to_the_width_of_its_view {
+		var toggle = GRVToggle.newDetached(2, 4);
+
+		this.assertEqual(2, toggle.thumbWidth);
+	}
+
+	test_a_vertical_toggle_should_by_default_have_thumb_height_1 {
+		var toggle = GRVToggle.newDetached(2, 4);
+
+		this.assertEqual(1, toggle.thumbHeight);
+	}
+
+	test_a_horizontal_toggle_should_by_default_have_thumb_width_1 {
+		var toggle = GRHToggle.newDetached(4, 2);
+
+		this.assertEqual(1, toggle.thumbWidth);
+	}
+
+	test_a_horizontal_toggle_should_by_default_have_thumb_height_set_to_the_height_of_its_view {
+		var toggle = GRHToggle.newDetached(4, 2);
+
+		this.assertEqual(2, toggle.thumbHeight);
+	}
+
+	test_it_should_be_possible_to_change_thumb_width_of_a_toggle {
+		var toggle = GRHToggle.newDetached(4, 2);
+
+		toggle.thumbWidth = 2;
+
+		this.assertEqual(
+			"  0 1 2 3      0 1 2 3\n" ++
+			"0 - - - -    0 L L - -\n" ++
+			"1 - - - -    1 L L - -\n",
+			toggle.asPlot
+		);
+	}
+
+	test_it_should_be_possible_to_change_thumb_size_of_a_toggle {
+		var toggle = GRHToggle.newDetached(4, 2);
+
+		toggle.thumbSize = [2, 2];
+
+		this.assertEqual(
+			"  0 1 2 3      0 1 2 3\n" ++
+			"0 - - - -    0 L L - -\n" ++
+			"1 - - - -    1 L L - -\n",
+			toggle.asPlot
+		);
+	}
+
+	test_it_should_be_possible_to_change_thumb_height_of_a_toggle {
+		var toggle = GRHToggle.newDetached(4, 2);
+
+		toggle.thumbHeight = 1;
+
+		this.assertEqual(
+			"  0 1 2 3      0 1 2 3\n" ++
+			"0 - - - -    0 L - - -\n" ++
+			"1 - - - -    1 - - - -\n",
+			toggle.asPlot
+		);
+	}
+
+	test_it_should_not_be_possible_to_set_a_toggles_thumb_width_to_an_inconsistent_value {
+		var toggle = GRHToggle.newDetached(4, 4);
+
+		this.assertErrorThrown(Error) { toggle.thumbWidth = 3 };
+	}
+
+	test_it_should_not_be_possible_to_set_a_toggles_thumb_height_to_an_inconsistent_value {
+		var toggle = GRHToggle.newDetached(4, 4);
+
+		this.assertErrorThrown(Error) { toggle.thumbHeight = 3 };
+	}
+
+	test_when_a_toggles_thumb_size_is_changed_all_view_buttons_should_be_released {
+		var toggle = GRHToggle.newDetached(4, 4);
+		toggle.press(Point.new(0, 0));
+
+		toggle.thumbSize = [2, 2];
+
+		this.assert(toggle.allReleased);
+	}
+
+	test_when_a_toggles_thumb_size_is_changed_its_leds_should_refresh {
+		var toggle = smallHorizontalToggle4x1;
+		var listener = MockViewLedRefreshedListener.new(toggle);
+
+		toggle.thumbSize = [2, 1];
+
+		this.assert(
+			listener.hasBeenNotifiedOf(
+				[
+					( source: \smallHorizontalToggle4x1, point: Point.new(0, 0), on: true ),
+					( source: \smallHorizontalToggle4x1, point: Point.new(1, 0), on: true ),
+					( source: \smallHorizontalToggle4x1, point: Point.new(2, 0), on: false ),
+					( source: \smallHorizontalToggle4x1, point: Point.new(3, 0), on: false ),
+				]
+			)
+		);
+	}
+
+	// inverted vs not inverted values
+	test_a_toggle_that_does_not_have_inverted_values_should_have_correct_led_lit {
+		var toggle = GRHToggle.newDetached(4, 1);
+		toggle.value = 3;
+		toggle.valuesAreInverted = false;
+
+		this.assertEqual(
+			"  0 1 2 3      0 1 2 3\n" ++
+			"0 - - - -    0 - - - L\n",
+			toggle.asPlot
+		);
+	}
+
+	test_a_toggle_that_has_inverted_values_should_have_correct_led_lit {
+		var toggle = GRHToggle.newDetached(4, 1);
+		toggle.value = 3;
+		toggle.valuesAreInverted = true;
+
+		this.assertEqual(
+			"  0 1 2 3      0 1 2 3\n" ++
+			"0 - - - -    0 L - - -\n",
+			toggle.asPlot
+		);
+	}
+
+	test_when_toggles_value_is_set_inverted_all_leds_should_automatically_refresh {
+		var toggle = smallHorizontalToggle4x1;
+		var listener;
+		toggle.valuesAreInverted = false;
+		toggle.value = 3;
+		listener = MockViewLedRefreshedListener.new(toggle);
+
+		toggle.valuesAreInverted = true;
+
+		this.assert(
+			listener.hasBeenNotifiedOf(
+				[
+					( source: \smallHorizontalToggle4x1, point: Point.new(0, 0), on: true ),
+					( source: \smallHorizontalToggle4x1, point: Point.new(1, 0), on: false ),
+					( source: \smallHorizontalToggle4x1, point: Point.new(2, 0), on: false ),
+					( source: \smallHorizontalToggle4x1, point: Point.new(3, 0), on: false ),
+				]
+			)
+		);
+	}
+
+	test_when_toggles_value_is_set_inverted_all_pressed_view_buttons_should_be_released {
+		var toggle = GRHToggle.newDetached(4, 1);
+		toggle.valuesAreInverted = false;
+		toggle.press(Point.new(2, 0));
+
+		toggle.valuesAreInverted = true;
+
+		this.assert(toggle.allReleased);
+	}
+
+	test_when_toggles_value_is_set_not_inverted_all_leds_should_automatically_refresh {
+		var toggle = smallHorizontalToggle4x1;
+		var listener;
+		toggle.valuesAreInverted = true;
+		toggle.value = 3;
+		listener = MockViewLedRefreshedListener.new(toggle);
+
+		toggle.valuesAreInverted = false;
+
+		this.assert(
+			listener.hasBeenNotifiedOf(
+				[
+					( source: \smallHorizontalToggle4x1, point: Point.new(0, 0), on: false ),
+					( source: \smallHorizontalToggle4x1, point: Point.new(1, 0), on: false ),
+					( source: \smallHorizontalToggle4x1, point: Point.new(2, 0), on: false ),
+					( source: \smallHorizontalToggle4x1, point: Point.new(3, 0), on: true ),
+				]
+			)
+		);
+	}
+
+	test_when_toggles_value_is_set_not_inverted_all_pressed_view_buttons_should_be_released {
+		var toggle = GRHToggle.newDetached(4, 1);
+		toggle.valuesAreInverted = true;
+		toggle.press(Point.new(2, 0));
+
+		toggle.valuesAreInverted = false;
+
+		this.assert(toggle.allReleased);
+	}
+
+	// decoupled toggle behavior
+	test_a_decoupled_toggle_should_not_change_value_nor_trigger_main_action_when_it_is_pressed_nor_released {
+		var toggle = GRHToggle.newDecoupled(nil, nil, 4, 1);
+		var listener = MockActionListener.new(toggle);
+
+		this.assertEqual(0, toggle.value);
+		toggle.press(Point.new(0, 0));
+		this.assertEqual(0, toggle.value);
+		toggle.press(Point.new(1, 0));
+		this.assertEqual(0, toggle.value);
+		toggle.release(Point.new(0, 0));
+		this.assertEqual(0, toggle.value);
+		toggle.release(Point.new(1, 0));
+		this.assertEqual(0, toggle.value);
+
+		this.assert( listener.hasNotBeenNotifiedOfAnything );
+	}
+
+	// coupled toggle behavior
+	test_a_coupled_toggle_should_change_value_every_time_it_is_pressed {
+		var toggle = smallHorizontalToggle4x1;
+
+		toggle.press(Point.new(3, 0));
 		this.assertEqual(3, toggle.value);
-		this.assertEqual(
-			[
-				( source: \toggle, point: Point.new(0, 0), on: false ),
-				( source: \toggle, point: Point.new(1, 0), on: false ),
-				( source: \toggle, point: Point.new(2, 0), on: false ),
-				( source: \toggle, point: Point.new(3, 0), on: true )
-			],
-			gotLed
-		);
-		this.assertEqual(
-			( toggle: toggle, value: 3 ),
-			gotAction
-		);
-		this.assertEqual(
-			nil,
-			gotPressAction
-		);
-
-		gotLed = Array.new; // TODO: or reset_test_led_event_listener_x
-
-		gotAction = nil;
-		gotPressAction = nil;
-
-		toggle.valueAction = nil;
-		this.assertEqual(
-			[
-				( source: \toggle, point: Point.new(0, 0), on: false ),
-				( source: \toggle, point: Point.new(1, 0), on: false ),
-				( source: \toggle, point: Point.new(2, 0), on: false ),
-				( source: \toggle, point: Point.new(3, 0), on: false )
-			],
-			gotLed
-		);
-		this.assertEqual(
-			( toggle: toggle, value: nil ),
-			gotAction
-		);
-		this.assertEqual(
-			nil,
-			gotPressAction
-		);
-	}
-
-	test_coupled_toggle {
-		var toggle, gotAction, gotPressAction;
-
-		toggle = GRHToggle.newDetached(8, 2);
-		this.assertEqual(0, toggle.value);
-
-		gotAction = nil;
-		toggle.action = { |toggle, value|
-			gotAction = ( toggle: toggle, value: value )
-		};
-
-		gotPressAction = nil;
-		toggle.togglePressedAction = { |toggle, value, pressed|
-			gotPressAction = ( toggle: toggle, value: value, pressed: pressed )
-		};
-
-		toggle.press(Point.new(4, 1));
-
-		this.assertEqual(4, toggle.value);
-		this.assertEqual(
-			( toggle: toggle, value: 4 ),
-			gotAction
-		);
-		this.assertEqual(
-			( toggle: toggle, value: 4, pressed: true ),
-			gotPressAction
-		);
-
-		gotAction = nil;
-		gotPressAction = nil;
-
-		toggle.release(Point.new(4, 1));
-
-		this.assertEqual(4, toggle.value);
-		this.assertEqual(
-			nil,
-			gotAction
-		);
-		this.assertEqual(
-			( toggle: toggle, value: 4, pressed: false ),
-			gotPressAction
-		);
-
-	}
-
-	test_decoupled_toggle {
-		var toggle, gotAction, gotPressAction;
-
-		toggle = GRHToggle.newDecoupled(nil, nil, 8, 2);
-		this.assertEqual(0, toggle.value);
-
-		gotAction = nil;
-		toggle.action = { |toggle, value|
-			gotAction = ( toggle: toggle, value: value );
-		};
-
-		gotPressAction = nil;
-		toggle.togglePressedAction = { |toggle, value, pressed|
-			gotPressAction = ( toggle: toggle, value: value, pressed: pressed );
-		};
-
-		toggle.press(Point.new(4, 1));
-
-		this.assertEqual(0, toggle.value);
-		this.assertEqual(
-			nil,
-			gotAction
-		);
-		this.assertEqual(
-			( toggle: toggle, value: 4, pressed: true ),
-			gotPressAction
-		);
-
-		gotAction = nil;
-		gotPressAction = nil;
-
-		toggle.release(Point.new(4, 1));
-
-		this.assertEqual(0, toggle.value);
-		this.assertEqual(
-			nil,
-			gotAction
-		);
-		this.assertEqual(
-			( toggle: toggle, value: 4, pressed: false ),
-			gotPressAction
-		);
-
-	}
-
-	test_nil_toggle_option {
-		var toggle;
-
-		toggle = GRHToggle.newDetached(8, 2);
-		toggle.toggleNil = true;
-		this.assertEqual(0, toggle.value);
-
-		toggle.press(Point.new(0, 1));
-		toggle.release(Point.new(0, 1));
-
-		this.assertEqual(nil, toggle.value);
-
-		toggle.press(Point.new(0, 1));
-		toggle.release(Point.new(0, 1));
-
-		this.assertEqual(0, toggle.value);
-
-		toggle.press(Point.new(2, 1));
-		toggle.release(Point.new(2, 1));
-
+		toggle.press(Point.new(1, 0));
+		this.assertEqual(1, toggle.value);
+		toggle.press(Point.new(2, 0));
 		this.assertEqual(2, toggle.value);
+	}
 
-		toggle.press(Point.new(2, 1));
-		toggle.release(Point.new(2, 1));
+	test_a_coupled_toggle_should_trigger_the_main_action_every_time_it_is_pressed {
+		var toggle = smallHorizontalToggle4x1;
+		var listener = MockActionListener.new(toggle);
+
+		toggle.press(Point.new(3, 0));
+
+		this.assert(
+			listener.hasBeenNotifiedOf(
+				[
+					[toggle, 3]
+				]
+			)
+		);
+
+		toggle.press(Point.new(1, 0));
+
+		this.assert(
+			listener.hasBeenNotifiedOf(
+				[
+					[toggle, 3],
+					[toggle, 1]
+				]
+			)
+		);
+
+		toggle.press(Point.new(2, 0));
+
+		this.assert(
+			listener.hasBeenNotifiedOf(
+				[
+					[toggle, 3],
+					[toggle, 1],
+					[toggle, 2]
+				]
+			)
+		);
+
+	}
+
+	// nillable toggle behavior
+	test_a_nillable_toggle_should_have_its_value_set_to_nil_if_it_is_pressed_on_the_button_equivalent_to_the_value_it_currently_has {
+		var toggle = GRHToggle.newNillable(nil, nil, 4, 1);
+		toggle.value = 3;
+
+		toggle.press(Point.new(3, 0));
 
 		this.assertEqual(nil, toggle.value);
+	}
 
-		toggle.press(Point.new(3, 1));
-		toggle.release(Point.new(3, 1));
+	test_a_nillable_toggle_should_trigger_the_main_action_when_its_value_is_set_to_nil {
+		var toggle = GRHToggle.newNillable(nil, nil, 4, 1);
+		var listener;
+		toggle.value = 3;
+		listener = MockActionListener.new(toggle);
 
-		this.assertEqual(3, toggle.value);
+		toggle.press(Point.new(3, 0));
+
+		this.assert( listener.hasBeenNotifiedOf( [ [toggle, nil] ] ) );
+	}
+
+	test_when_a_nillable_toggle_with_value_nil_is_set_not_nillable_it_should_get_value_0 {
+		var toggle = GRHToggle.newNillable(nil, nil, 4, 1);
+		toggle.value = nil;
+
+		toggle.nillable = false;
+
+		this.assertEqual(0, toggle.value);
 	}
 }

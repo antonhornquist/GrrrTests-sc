@@ -1,18 +1,10 @@
-/*
-	Run tests evaluate
-	TestRunner.runAllTestsInTestClassesWithPrefix("GRView")
-	in SuperCollider
-*/
-
 GRViewTests : Test {
 	var
 		aDetached4x4View,
 		aDetached2x3View,
 		aDetached2x2View,
 		aDisabled4x4View,
-		aDisabled2x2View,
-		gotLed,
-		gotPressedRename
+		aDisabled2x2View
 	;
 
 	setup {
@@ -29,30 +21,10 @@ GRViewTests : Test {
 		aDisabled4x4View.id = \aDisabled4x4View;
 		aDisabled2x2View = GRView.new(nil, nil, 2, 2, false);
 		aDisabled2x2View.id = \aDisabled2x2View;
-		gotLed = Array.new;
-		gotPressedRename = Array.new;
 	}
 
 	teardown {
 		GRTestsHelper.restoreGlobals;
-	}
-
-	addTestLedEventListener { |view|
-		var listener;
-		listener = { |source, point, on|
-			gotLed = gotLed.add( ( source: source.id, point: point, on: on ) );
-		};
-		view.addLedEventListener(listener);
-		^listener
-	}
-
-	addTestButtonEventListener { |view|
-		var listener;
-		listener = { |point, pressed|
-			gotPressedRename = gotPressedRename.add( ( point: point, pressed: pressed ) );
-		};
-		view.addButtonEventListener(listener);
-		^listener
 	}
 
 	// initialization

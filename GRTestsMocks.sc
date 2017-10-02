@@ -81,6 +81,10 @@ MockToggleValueReleasedListener : MockActionListener {
 	prSelector { ^\toggleValueReleasedAction }
 }
 
+MockToggleRangePressedListener : MockActionListener {
+	prSelector { ^\toggleRangePressedAction }
+}
+
 MockLitView : GRView {
 	*new { |parent, origin, numCols=nil, numRows=nil, enabled=true|
 		^super.new(parent, origin, numCols, numRows, enabled).init;
@@ -167,32 +171,13 @@ MockController : GRController {
 		registerNotifications = true;
 	}
 
-/*
-	// TODO: just use emit_press
-	def emulate_press(point)
-		emit_press(point)
-	end
-
-	// TODO: just use emit_release
-	def emulate_release(point)
-		emit_release(point)
-	end
-*/
-
-	resetViewButtonStateChangedNotifications {
+	resetViewButtonStateChangedNotifications { // TODO: probably possible to remove
 		viewButtonStateChangedNotifications = []
 	}
 
-	resetViewLedRefreshedNotifications {
+	resetViewLedRefreshedNotifications { // TODO: probably possible to remove
 		viewLedRefreshedNotifications = []
 	}
-
-/*
-	info {
-		// TODO: remove from SC and Ruby
-		"[Description of MockController Settings]"
-	}
-*/
 
 	handleViewButtonStateChangedEvent { |point, pressed|
  		if (registerNotifications) {
