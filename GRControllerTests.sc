@@ -2,11 +2,11 @@ GRControllerTests : Test {
 	setup {
 		GRTestsHelper.saveGlobals;
 		GRTestsHelper.disableTraceAndFlash;
+		GRController.all.do { |controller| controller.remove };
 	}
 
 	teardown {
 		GRTestsHelper.restoreGlobals;
-		GRController.all.do { |controller| controller.remove };
 	}
 
 	// initialization
