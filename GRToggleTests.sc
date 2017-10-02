@@ -1,14 +1,7 @@
 GRToggleTests : Test {
-	var
-		smallHorizontalToggle4x1,
-		gotLed
-	;
-
 	setup {
 		GRTestsHelper.saveGlobals;
 		GRTestsHelper.disableTraceAndFlash;
-		smallHorizontalToggle4x1 = GRHToggle.newDetached(4, 1);
-		smallHorizontalToggle4x1.id = \smallHorizontalToggle4x1;
 	}
 
 	teardown {
@@ -69,13 +62,13 @@ GRToggleTests : Test {
 
 	// toggle pressed state and toggle events
 	test_a_single_view_button_press_event_should_make_a_toggle_pressed {
-		var toggle = smallHorizontalToggle4x1;
+		var toggle = GRHToggle.newDetached(4, 1);
 		toggle.press(Point.new(2, 0));
 		this.assert(toggle.isPressed);
 	}
 
 	test_a_toggle_should_not_be_considered_released_until_all_view_buttons_are_released {
-		var toggle = smallHorizontalToggle4x1;
+		var toggle = GRHToggle.newDetached(4, 1);
 
 		toggle.press(Point.new(0, 0));
 
@@ -95,7 +88,7 @@ GRToggleTests : Test {
 	}
 
 	test_when_pressed_state_of_a_toggle_is_updated_toggle_pressed_and_released_actions_should_be_triggered {
-		var toggle = smallHorizontalToggle4x1;
+		var toggle = GRHToggle.newDetached(4, 1);
 		var pressedListener = MockTogglePressedListener.new(toggle);
 		var releasedListener = MockToggleReleasedListener.new(toggle);
 
@@ -113,7 +106,7 @@ GRToggleTests : Test {
 	}
 
 	test_every_view_button_press_event_on_a_toggle_should_trigger_toggle_value_pressed_action {
-		var toggle = smallHorizontalToggle4x1;
+		var toggle = GRHToggle.newDetached(4, 1);
 		var listener = MockToggleValuePressedListener.new(toggle);
 
 		toggle.press(Point.new(2, 0));
@@ -142,7 +135,7 @@ GRToggleTests : Test {
 	}
 
 	test_if_several_buttons_get_pressed_on_view_and_the_min_and_max_values_of_the_pressed_buttons_get_changed_toggle_range_pressed_action_should_be_triggered { // TODO: this is fucking great, use it in an app
-		var toggle = smallHorizontalToggle4x1;
+		var toggle = GRHToggle.newDetached(4, 1);
 		var listener = MockToggleRangePressedListener.new(toggle);
 
 		toggle.press(Point.new(1, 0));
@@ -157,26 +150,28 @@ GRToggleTests : Test {
 
 	// led events and refresh
 	test_when_a_toggle_is_set_to_a_new_value_leds_should_be_refreshed_and_only_the_led_corresponding_to_the_value_should_be_lit {
-		var toggle = smallHorizontalToggle4x1;
+		var toggle = GRHToggle.newDetached(4, 1);
 		var listener = MockViewLedRefreshedListener.new(toggle);
+		toggle.id = \abc;
 
 		toggle.value = 3;
 
 		this.assert(
 			listener.hasBeenNotifiedOf(
 				[
-					( source: \smallHorizontalToggle4x1, point: Point.new(0, 0), on: false ),
-					( source: \smallHorizontalToggle4x1, point: Point.new(1, 0), on: false ),
-					( source: \smallHorizontalToggle4x1, point: Point.new(2, 0), on: false ),
-					( source: \smallHorizontalToggle4x1, point: Point.new(3, 0), on: true ),
+					( source: \abc, point: Point.new(0, 0), on: false ),
+					( source: \abc, point: Point.new(1, 0), on: false ),
+					( source: \abc, point: Point.new(2, 0), on: false ),
+					( source: \abc, point: Point.new(3, 0), on: true ),
 				]
 			)
 		);
 	}
 
 	test_when_a_nillable_toggle_is_set_to_a_nil_value_leds_should_be_refreshed_and_all_leds_should_be_unlit {
-		var toggle = smallHorizontalToggle4x1;
+		var toggle = GRHToggle.newDetached(4, 1);
 		var listener;
+		toggle.id = \abc;
 		toggle.nillable=true;
 		listener = MockViewLedRefreshedListener.new(toggle);
 
@@ -185,17 +180,17 @@ GRToggleTests : Test {
 		this.assert(
 			listener.hasBeenNotifiedOf(
 				[
-					( source: \smallHorizontalToggle4x1, point: Point.new(0, 0), on: false ),
-					( source: \smallHorizontalToggle4x1, point: Point.new(1, 0), on: false ),
-					( source: \smallHorizontalToggle4x1, point: Point.new(2, 0), on: false ),
-					( source: \smallHorizontalToggle4x1, point: Point.new(3, 0), on: false ),
+					( source: \abc, point: Point.new(0, 0), on: false ),
+					( source: \abc, point: Point.new(1, 0), on: false ),
+					( source: \abc, point: Point.new(2, 0), on: false ),
+					( source: \abc, point: Point.new(3, 0), on: false ),
 				]
 			)
 		);
 	}
 
 	test_if_a_non_nillable_toggle_is_set_to_a_nil_value_an_error_should_be_thrown {
-		var toggle = smallHorizontalToggle4x1;
+		var toggle = GRHToggle.newDetached(4, 1);
 
 		this.assertErrorThrown(Error) { toggle.value = nil };
 	}
@@ -225,8 +220,9 @@ GRToggleTests : Test {
 	}
 
 	test_when_toggle_is_set_filled_all_leds_should_automatically_refresh {
-		var toggle = smallHorizontalToggle4x1;
+		var toggle = GRHToggle.newDetached(4, 1);
 		var listener;
+		toggle.id = \abc;
 		toggle.value = 2;
 		listener = MockViewLedRefreshedListener.new(toggle);
 
@@ -235,18 +231,19 @@ GRToggleTests : Test {
 		this.assert(
 			listener.hasBeenNotifiedOf(
 				[
-					( source: \smallHorizontalToggle4x1, point: Point.new(0, 0), on: true ),
-					( source: \smallHorizontalToggle4x1, point: Point.new(1, 0), on: true ),
-					( source: \smallHorizontalToggle4x1, point: Point.new(2, 0), on: true ),
-					( source: \smallHorizontalToggle4x1, point: Point.new(3, 0), on: false ),
+					( source: \abc, point: Point.new(0, 0), on: true ),
+					( source: \abc, point: Point.new(1, 0), on: true ),
+					( source: \abc, point: Point.new(2, 0), on: true ),
+					( source: \abc, point: Point.new(3, 0), on: false ),
 				]
 			)
 		);
 	}
 
 	test_when_toggle_is_set_not_filled_all_leds_should_automatically_refresh {
-		var toggle = smallHorizontalToggle4x1;
+		var toggle = GRHToggle.newDetached(4, 1);
 		var listener;
+		toggle.id = \abc;
 		toggle.filled = true;
 		toggle.value = 2;
 		listener = MockViewLedRefreshedListener.new(toggle);
@@ -256,10 +253,10 @@ GRToggleTests : Test {
 		this.assert(
 			listener.hasBeenNotifiedOf(
 				[
-					( source: \smallHorizontalToggle4x1, point: Point.new(0, 0), on: false ),
-					( source: \smallHorizontalToggle4x1, point: Point.new(1, 0), on: false ),
-					( source: \smallHorizontalToggle4x1, point: Point.new(2, 0), on: true ),
-					( source: \smallHorizontalToggle4x1, point: Point.new(3, 0), on: false ),
+					( source: \abc, point: Point.new(0, 0), on: false ),
+					( source: \abc, point: Point.new(1, 0), on: false ),
+					( source: \abc, point: Point.new(2, 0), on: true ),
+					( source: \abc, point: Point.new(3, 0), on: false ),
 				]
 			)
 		);
@@ -351,18 +348,19 @@ GRToggleTests : Test {
 	}
 
 	test_when_a_toggles_thumb_size_is_changed_its_leds_should_refresh {
-		var toggle = smallHorizontalToggle4x1;
+		var toggle = GRHToggle.newDetached(4, 1);
 		var listener = MockViewLedRefreshedListener.new(toggle);
+		toggle.id = \abc;
 
 		toggle.thumbSize = [2, 1];
 
 		this.assert(
 			listener.hasBeenNotifiedOf(
 				[
-					( source: \smallHorizontalToggle4x1, point: Point.new(0, 0), on: true ),
-					( source: \smallHorizontalToggle4x1, point: Point.new(1, 0), on: true ),
-					( source: \smallHorizontalToggle4x1, point: Point.new(2, 0), on: false ),
-					( source: \smallHorizontalToggle4x1, point: Point.new(3, 0), on: false ),
+					( source: \abc, point: Point.new(0, 0), on: true ),
+					( source: \abc, point: Point.new(1, 0), on: true ),
+					( source: \abc, point: Point.new(2, 0), on: false ),
+					( source: \abc, point: Point.new(3, 0), on: false ),
 				]
 			)
 		);
@@ -394,8 +392,9 @@ GRToggleTests : Test {
 	}
 
 	test_when_toggles_value_is_set_inverted_all_leds_should_automatically_refresh {
-		var toggle = smallHorizontalToggle4x1;
+		var toggle = GRHToggle.newDetached(4, 1);
 		var listener;
+		toggle.id = \abc;
 		toggle.valuesAreInverted = false;
 		toggle.value = 3;
 		listener = MockViewLedRefreshedListener.new(toggle);
@@ -405,10 +404,10 @@ GRToggleTests : Test {
 		this.assert(
 			listener.hasBeenNotifiedOf(
 				[
-					( source: \smallHorizontalToggle4x1, point: Point.new(0, 0), on: true ),
-					( source: \smallHorizontalToggle4x1, point: Point.new(1, 0), on: false ),
-					( source: \smallHorizontalToggle4x1, point: Point.new(2, 0), on: false ),
-					( source: \smallHorizontalToggle4x1, point: Point.new(3, 0), on: false ),
+					( source: \abc, point: Point.new(0, 0), on: true ),
+					( source: \abc, point: Point.new(1, 0), on: false ),
+					( source: \abc, point: Point.new(2, 0), on: false ),
+					( source: \abc, point: Point.new(3, 0), on: false ),
 				]
 			)
 		);
@@ -425,8 +424,9 @@ GRToggleTests : Test {
 	}
 
 	test_when_toggles_value_is_set_not_inverted_all_leds_should_automatically_refresh {
-		var toggle = smallHorizontalToggle4x1;
+		var toggle = GRHToggle.newDetached(4, 1);
 		var listener;
+		toggle.id = \abc;
 		toggle.valuesAreInverted = true;
 		toggle.value = 3;
 		listener = MockViewLedRefreshedListener.new(toggle);
@@ -436,10 +436,10 @@ GRToggleTests : Test {
 		this.assert(
 			listener.hasBeenNotifiedOf(
 				[
-					( source: \smallHorizontalToggle4x1, point: Point.new(0, 0), on: false ),
-					( source: \smallHorizontalToggle4x1, point: Point.new(1, 0), on: false ),
-					( source: \smallHorizontalToggle4x1, point: Point.new(2, 0), on: false ),
-					( source: \smallHorizontalToggle4x1, point: Point.new(3, 0), on: true ),
+					( source: \abc, point: Point.new(0, 0), on: false ),
+					( source: \abc, point: Point.new(1, 0), on: false ),
+					( source: \abc, point: Point.new(2, 0), on: false ),
+					( source: \abc, point: Point.new(3, 0), on: true ),
 				]
 			)
 		);
@@ -475,7 +475,7 @@ GRToggleTests : Test {
 
 	// coupled toggle behavior
 	test_a_coupled_toggle_should_change_value_every_time_it_is_pressed {
-		var toggle = smallHorizontalToggle4x1;
+		var toggle = GRHToggle.newDetached(4, 1);
 
 		toggle.press(Point.new(3, 0));
 		this.assertEqual(3, toggle.value);
@@ -486,7 +486,7 @@ GRToggleTests : Test {
 	}
 
 	test_a_coupled_toggle_should_trigger_the_main_action_every_time_it_is_pressed {
-		var toggle = smallHorizontalToggle4x1;
+		var toggle = GRHToggle.newDetached(4, 1);
 		var listener = MockActionListener.new(toggle);
 
 		toggle.press(Point.new(3, 0));

@@ -1,19 +1,7 @@
 GRButtonTests : Test {
-	var
-		smallToggleButton,
-		largeToggleButton,
-		smallMomentaryButton
-	;
-
 	setup {
 		GRTestsHelper.saveGlobals;
 		GRTestsHelper.disableTraceAndFlash;
-		smallToggleButton = GRButton.newDetached(1, 1);
-		smallToggleButton.id = \smallToggleButton;
-		largeToggleButton = GRButton.newDetached(2, 2);
-		largeToggleButton.id = \largeToggleButton;
-		smallMomentaryButton = GRButton.newMomentary(nil, nil, 1, 1);
-		smallMomentaryButton.id = \smallMomentaryButton;
 	}
 
 	teardown {
@@ -53,13 +41,13 @@ GRButtonTests : Test {
 
 	// button pressed state and button events
 	test_a_single_view_button_press_event_should_make_a_button_pressed {
-		var button = smallToggleButton;
+		var button = GRButton.newDetached(1, 1);
 		button.press(Point.new(0, 0));
 		this.assert(button.isPressed);
 	}
 
 	test_a_button_should_not_be_considered_released_until_all_view_buttons_are_released {
-		var button = largeToggleButton;
+		var button = GRButton.newDetached(2, 2);
 
 		button.press(Point.new(0, 0));
 
@@ -98,26 +86,28 @@ GRButtonTests : Test {
 
 	// led events and refresh
 	test_when_the_value_of_a_button_is_set_to_true_leds_are_lit {
-		var button = largeToggleButton;
+		var button = GRButton.newDetached(2, 2);
 		var listener = MockViewLedRefreshedListener.new(button);
+		button.id = \abc;
 
 		button.value = true;
 
 		this.assert(
 			listener.hasBeenNotifiedOf(
 				[
-					( source: \largeToggleButton, point: Point.new(0, 0), on: true ),
-					( source: \largeToggleButton, point: Point.new(1, 0), on: true ),
-					( source: \largeToggleButton, point: Point.new(0, 1), on: true ),
-					( source: \largeToggleButton, point: Point.new(1, 1), on: true ),
+					( source: \abc, point: Point.new(0, 0), on: true ),
+					( source: \abc, point: Point.new(1, 0), on: true ),
+					( source: \abc, point: Point.new(0, 1), on: true ),
+					( source: \abc, point: Point.new(1, 1), on: true ),
 				]
 			)
 		);
 	}
 
 	test_when_the_value_of_a_button_is_set_to_false_leds_are_unlit {
-		var button = largeToggleButton;
+		var button = GRButton.newDetached(2, 2);
 		var listener;
+		button.id = \abc;
 		button.value = true;
 		listener = MockViewLedRefreshedListener.new(button);
 
@@ -126,10 +116,10 @@ GRButtonTests : Test {
 		this.assert(
 			listener.hasBeenNotifiedOf(
 				[
-					( source: \largeToggleButton, point: Point.new(0, 0), on: false ),
-					( source: \largeToggleButton, point: Point.new(1, 0), on: false ),
-					( source: \largeToggleButton, point: Point.new(0, 1), on: false ),
-					( source: \largeToggleButton, point: Point.new(1, 1), on: false ),
+					( source: \abc, point: Point.new(0, 0), on: false ),
+					( source: \abc, point: Point.new(1, 0), on: false ),
+					( source: \abc, point: Point.new(0, 1), on: false ),
+					( source: \abc, point: Point.new(1, 1), on: false ),
 				]
 			)
 		);
@@ -151,7 +141,7 @@ GRButtonTests : Test {
 
 	// coupled toggle button behavior
 	test_a_coupled_toggle_button_should_toggle_value_every_time_the_button_is_pressed {
-		var button = smallToggleButton;
+		var button = GRButton.newDetached(1, 1);
 
 		button.press(Point.new(0, 0));
 		this.assertEqual(true, button.value);
@@ -164,7 +154,7 @@ GRButtonTests : Test {
 	}
 
 	test_a_coupled_toggle_button_should_trigger_the_main_action_every_time_a_button_is_pressed {
-		var button = smallToggleButton;
+		var button = GRButton.newDetached(1, 1);
 		var listener = MockActionListener.new(button);
 
 		button.press(Point.new(0, 0));
@@ -212,7 +202,7 @@ GRButtonTests : Test {
 
 	// coupled momentary button behavior
 	test_a_coupled_momentary_button_should_toggle_value_both_when_button_is_pressed_and_when_it_is_released {
-		var button = smallMomentaryButton;
+		var button = GRButton.newMomentary(nil, nil, 1, 1);
 
 		button.press(Point.new(0, 0));
 		this.assertEqual(true, button.value);
@@ -228,7 +218,7 @@ GRButtonTests : Test {
 	}
 
 	test_a_coupled_momentary_button_should_trigger_main_action_both_when_button_is_pressed_and_when_it_is_released {
-		var button = smallMomentaryButton;
+		var button = GRButton.newMomentary(nil, nil, 1, 1);
 		var listener = MockActionListener.new(button);
 
 		button.press(Point.new(0, 0));

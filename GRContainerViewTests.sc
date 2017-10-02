@@ -1,19 +1,7 @@
 GRContainerViewTests : Test {
-	var
-		mockTopContainer,
-		mockChildContainer,
-		mockView
-	;
-
 	setup {
 		GRTestsHelper.saveGlobals;
 		GRTestsHelper.disableTraceAndFlash;
-		mockTopContainer = MockLitContainerView.newDetached(4, 4);
-		mockTopContainer.id = \topContainer;
-		mockChildContainer = GRContainerView.new(mockTopContainer, Point.new(1, 1), 3, 3);
-		mockChildContainer.id = \childContainer;
-		mockView = MockLitView.new(mockChildContainer, Point.new(1, 1), 2, 2);
-		mockView.id = \view;
 	}
 
 	teardown {
@@ -332,9 +320,16 @@ GRContainerViewTests : Test {
 
 	// led events and refresh
 	test_if_a_point_of_a_container_is_refreshed_and_an_enabled_child_view_cover_the_point_the_child_view_led_state_should_override_container_led_state {
-		var listener = MockViewLedRefreshedListener.new(mockTopContainer);
+		var topContainer, childContainer, view, listener;
+		topContainer = MockLitContainerView.newDetached(4, 4);
+		topContainer.id = \topContainer;
+		childContainer = GRContainerView.new(topContainer, Point.new(1, 1), 3, 3);
+		childContainer.id = \childContainer;
+		view = MockLitView.new(childContainer, Point.new(1, 1), 2, 2);
+		view.id = \view;
+		listener = MockViewLedRefreshedListener.new(topContainer);
 
-		mockTopContainer.refreshPoint(Point.new(0, 0));
+		topContainer.refreshPoint(Point.new(0, 0));
 
 		this.assert(
 			listener.hasBeenNotifiedOf(
@@ -344,7 +339,7 @@ GRContainerViewTests : Test {
 			)
 		);
 
-		mockTopContainer.refreshPoint(Point.new(1, 1));
+		topContainer.refreshPoint(Point.new(1, 1));
 
 		this.assert(
 			listener.hasBeenNotifiedOf(
@@ -355,7 +350,7 @@ GRContainerViewTests : Test {
 			)
 		);
 
-		mockTopContainer.refreshPoint(Point.new(2, 2));
+		topContainer.refreshPoint(Point.new(2, 2));
 
 		this.assert(
 			listener.hasBeenNotifiedOf(
@@ -369,9 +364,16 @@ GRContainerViewTests : Test {
 	}
 
 	test_when_an_area_of_a_container_is_refreshed_on_the_points_where_enabled_child_views_are_the_child_view_led_state_should_override_container_led_state {
-		var listener = MockViewLedRefreshedListener.new(mockTopContainer);
+		var topContainer, childContainer, view, listener;
+		topContainer = MockLitContainerView.newDetached(4, 4);
+		topContainer.id = \topContainer;
+		childContainer = GRContainerView.new(topContainer, Point.new(1, 1), 3, 3);
+		childContainer.id = \childContainer;
+		view = MockLitView.new(childContainer, Point.new(1, 1), 2, 2);
+		view.id = \view;
+		listener = MockViewLedRefreshedListener.new(topContainer);
 
-		mockTopContainer.refreshBounds(Point.new(1, 1), 3, 2);
+		topContainer.refreshBounds(Point.new(1, 1), 3, 2);
 
 		this.assert(
 			listener.hasBeenNotifiedOf(
@@ -388,9 +390,16 @@ GRContainerViewTests : Test {
 	}
 
 	test_when_an_entire_container_is_refreshed_on_the_points_where_enabled_child_views_are_the_child_view_led_state_should_override_container_led_state {
-		var listener = MockViewLedRefreshedListener.new(mockTopContainer);
+		var topContainer, childContainer, view, listener;
+		topContainer = MockLitContainerView.newDetached(4, 4);
+		topContainer.id = \topContainer;
+		childContainer = GRContainerView.new(topContainer, Point.new(1, 1), 3, 3);
+		childContainer.id = \childContainer;
+		view = MockLitView.new(childContainer, Point.new(1, 1), 2, 2);
+		view.id = \view;
+		listener = MockViewLedRefreshedListener.new(topContainer);
 
-		mockTopContainer.refresh;
+		topContainer.refresh;
 
 		this.assert(
 			listener.hasBeenNotifiedOf(
@@ -417,9 +426,16 @@ GRContainerViewTests : Test {
 	}
 
 	test_when_an_enabled_view_that_has_a_parent_is_refreshed_led_state_should_automatically_be_forwarded_to_the_parent {
-		var listener = MockViewLedRefreshedListener.new(mockTopContainer);
+		var topContainer, childContainer, view, listener;
+		topContainer = MockLitContainerView.newDetached(4, 4);
+		topContainer.id = \topContainer;
+		childContainer = GRContainerView.new(topContainer, Point.new(1, 1), 3, 3);
+		childContainer.id = \childContainer;
+		view = MockLitView.new(childContainer, Point.new(1, 1), 2, 2);
+		view.id = \view;
+		listener = MockViewLedRefreshedListener.new(topContainer);
 
-		mockView.refresh;
+		view.refresh;
 
 		this.assert(
 			listener.hasBeenNotifiedOf(
@@ -449,9 +465,16 @@ GRContainerViewTests : Test {
 	}
 
 	test_it_should_be_possible_to_refresh_only_the_points_of_a_container_where_led_state_is_not_overridden_by_any_child_view {
-		var listener = MockViewLedRefreshedListener.new(mockTopContainer);
+		var topContainer, childContainer, view, listener;
+		topContainer = MockLitContainerView.newDetached(4, 4);
+		topContainer.id = \topContainer;
+		childContainer = GRContainerView.new(topContainer, Point.new(1, 1), 3, 3);
+		childContainer.id = \childContainer;
+		view = MockLitView.new(childContainer, Point.new(1, 1), 2, 2);
+		view.id = \view;
+		listener = MockViewLedRefreshedListener.new(topContainer);
 
-		mockTopContainer.refresh(false);
+		topContainer.refresh(false);
 
 		this.assert(
 			listener.hasBeenNotifiedOf(

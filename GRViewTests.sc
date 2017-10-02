@@ -1,26 +1,7 @@
 GRViewTests : Test {
-	var
-		aDetached4x4View,
-		aDetached2x3View,
-		aDetached2x2View,
-		aDisabled4x4View,
-		aDisabled2x2View
-	;
-
 	setup {
 		GRTestsHelper.saveGlobals;
 		GRTestsHelper.disableTraceAndFlash;
-		aDetached4x4View = GRView.new(nil, nil, 4, 4);
-		aDetached4x4View.id = \aDetached4x4View;
-		aDetached2x3View = GRView.new(nil, nil, 2, 3);
-		aDetached2x3View.id = \aDetached2x3View;
-		aDetached2x2View = GRView.new(nil, nil, 2, 2);
-		aDetached2x2View.id = \aDetached2x2View;
-
-		aDisabled4x4View = GRView.new(nil, nil, 4, 4, false);
-		aDisabled4x4View.id = \aDisabled4x4View;
-		aDisabled2x2View = GRView.new(nil, nil, 2, 2, false);
-		aDisabled2x2View.id = \aDisabled2x2View;
 	}
 
 	teardown {
@@ -63,30 +44,33 @@ GRViewTests : Test {
 
 	// id
 	test_id {
-		aDetached4x4View.id = \test;
-		this.assertEqual(\test, aDetached4x4View.id);
+		var view = GRView.new;
+		view.id = \test;
+		this.assertEqual(\test, view.id);
 	}
 
 	// enable / disable
 	test_it_should_be_possible_to_disable_enabled_views {
-		aDetached4x4View.disable;
-		this.assert( aDetached4x4View.isDisabled );
+		var view = GRView.new;
+		view.disable;
+		this.assert( view.isDisabled );
 	}
 
 	test_it_should_be_possible_to_enable_disabled_views {
-		aDisabled4x4View.enable;
-		this.assert( aDisabled4x4View.isEnabled );
+		var view = GRView.newDisabled(nil, nil, 4, 4);
+		view.enable;
+		this.assert( view.isEnabled );
 	}
 
 	test_it_should_be_possible_to_get_notified_of_when_a_view_is_enabled_by_adding_an_action_to_a_view {
-		var view = aDisabled4x4View;
+		var view = GRView.newDisabled(nil, nil, 4, 4);
 		var listener = MockViewWasEnabledListener.new(view);
 		view.enable;
 		this.assert( listener.hasBeenNotifiedOf( [ [view] ] ) );
 	}
 
 	test_it_should_be_possible_to_get_notified_of_when_a_view_is_disabled_by_adding_an_action_to_a_view {
-		var view = aDetached4x4View;
+		var view = GRView.new;
 		var listener = MockViewWasDisabledListener.new(view);
 		view.disable;
 		this.assert( listener.hasBeenNotifiedOf( [ [view] ] ) );
@@ -94,9 +78,10 @@ GRViewTests : Test {
 
 	// bounds
 	test_it_should_be_possible_to_retrieve_the_bounds_of_and_number_of_buttons_on_a_view {
-		this.assertEqual(2, aDetached2x3View.numCols);
-		this.assertEqual(3, aDetached2x3View.numRows);
-		this.assertEqual(6, aDetached2x3View.numViewButtons);
+		var view = GRView.newDetached(2, 3);
+		this.assertEqual(2, view.numCols);
+		this.assertEqual(3, view.numRows);
+		this.assertEqual(6, view.numViewButtons);
 	}
 
 	test_it_should_be_possible_to_retrieve_points_of_a_view_starting_from_an_origin {
@@ -106,7 +91,7 @@ GRViewTests : Test {
 				Point.new(10, 21), Point.new(11, 21),
 				Point.new(10, 22), Point.new(11, 22)
 			],
-			aDetached2x3View.asPointsFrom(Point.new(10, 20))
+			GRView.newDetached(2, 3).asPointsFrom(Point.new(10, 20))
 		);
 	}
 
@@ -158,47 +143,47 @@ GRViewTests : Test {
 	test_it_should_be_possible_to_retrieve_the_left_top_right_top_left_bottom_and_right_bottom_points_of_a_view {
 		this.assertEqual(
 			Point.new(0, 0),
-			aDetached2x3View.leftTopPoint
+			GRView.newDetached(2, 3).leftTopPoint
 		);
 		this.assertEqual(
 			Point.new(1, 0),
-			aDetached2x3View.rightTopPoint
+			GRView.newDetached(2, 3).rightTopPoint
 		);
 		this.assertEqual(
 			Point.new(0, 2),
-			aDetached2x3View.leftBottomPoint
+			GRView.newDetached(2, 3).leftBottomPoint
 		);
 		this.assertEqual(
 			Point.new(1, 2),
-			aDetached2x3View.rightBottomPoint
+			GRView.newDetached(2, 3).rightBottomPoint
 		);
 	}
 
 	test_it_should_be_possible_to_retrieve_leftmost_and_rightmost_cols_of_view {
 		this.assertEqual(
 			0,
-			aDetached2x3View.leftmostCol
+			GRView.newDetached(2, 3).leftmostCol
 		);
 		this.assertEqual(
 			1,
-			aDetached2x3View.rightmostCol
+			GRView.newDetached(2, 3).rightmostCol
 		);
 	}
 
 	test_it_should_be_possible_to_retrieve_topmost_and_bottommost_rows_of_view {
 		this.assertEqual(
 			0,
-			aDetached2x3View.topmostRow
+			GRView.newDetached(2, 3).topmostRow
 		);
 		this.assertEqual(
 			2,
-			aDetached2x3View.bottommostRow
+			GRView.newDetached(2, 3).bottommostRow
 		);
 	}
 
 	// validations
 	test_it_should_be_possible_to_determine_if_a_view_contains_a_specified_point {
-		var view = aDetached2x3View;
+		var view = GRView.newDetached(2, 3);
 
 		this.assert( view.containsPoint(Point.new(0, 0)) );
 		this.assert( view.containsPoint(Point.new(1, 2)) );
@@ -224,7 +209,7 @@ GRViewTests : Test {
 	}
 
 	test_it_should_be_possible_to_determine_if_a_view_contains_a_specified_bounds {
-		var view = aDetached2x3View;
+		var view = GRView.newDetached(2, 3);
 
 		this.assert( view.containsBounds(Point.new(0, 0), 2, 3) );
 		this.assert( view.containsBounds(Point.new(0, 0), 2, 1) );
@@ -253,7 +238,7 @@ GRViewTests : Test {
 
 	// action and value
 	test_it_should_be_possible_to_get_notified_of_view_events_by_adding_actions_to_a_view {
-		var view = aDetached2x2View;
+		var view = GRView.newDetached(2, 2);
 		var actionListener1 = MockActionListener.new(view);
 		var actionListener2 = MockActionListener.new(view);
 
@@ -264,7 +249,7 @@ GRViewTests : Test {
 	}
 
 	test_it_should_be_possible_to_remove_added_actions_from_a_view {
-		var view = aDetached2x2View;
+		var view = GRView.newDetached(2, 2);
 		var actionListener1 = MockActionListener.new(view);
 		var actionListener2 = MockActionListener.new(view);
 
@@ -275,7 +260,7 @@ GRViewTests : Test {
 	}
 
 	test_an_action_should_no_longer_receive_notifications_once_it_has_been_removed_from_a_view {
-		var view = aDetached2x2View;
+		var view = GRView.newDetached(2, 2);
 		var actionListener1 = MockActionListener.new(view);
 		var actionListener2 = MockActionListener.new(view);
 
@@ -288,14 +273,15 @@ GRViewTests : Test {
 	}
 
 	test_it_should_be_possible_to_set_a_views_value {
-		var view = aDetached2x2View;
+		var view = GRView.newDetached(2, 2);
 		view.value = \xyz;
 		this.assertEqual(\xyz, view.value);
 	}
 
 	test_when_a_views_value_is_set_to_a_new_value_the_view_should_be_refreshed {
-		var view = aDetached2x2View;
+		var view = GRView.newDetached(2, 2);
 		var listener;
+		view.id = \xyz;
 		view.value = \abc;
 		listener = MockViewLedRefreshedListener.new(view);
 
@@ -304,17 +290,17 @@ GRViewTests : Test {
 		this.assert(
 			listener.hasBeenNotifiedOf(
 				[
-					( source: \aDetached2x2View, point: Point.new(0, 0), on: false ),
-					( source: \aDetached2x2View, point: Point.new(1, 0), on: false ),
-					( source: \aDetached2x2View, point: Point.new(0, 1), on: false ),
-					( source: \aDetached2x2View, point: Point.new(1, 1), on: false )
+					( source: \xyz, point: Point.new(0, 0), on: false ),
+					( source: \xyz, point: Point.new(1, 0), on: false ),
+					( source: \xyz, point: Point.new(0, 1), on: false ),
+					( source: \xyz, point: Point.new(1, 1), on: false )
 				]
 			)
 		);
 	}
 
 	test_when_a_views_value_is_set_but_not_changed_the_view_should_not_be_refreshed {
-		var view = aDetached2x2View;
+		var view = GRView.newDetached(2, 2);
 		var listener;
 		view.value = \abc;
 		listener = MockViewLedRefreshedListener.new(view);
@@ -325,19 +311,20 @@ GRViewTests : Test {
 	}
 
 	test_when_a_views_value_is_set_to_a_new_value_using_value_action_the_view_should_be_refreshed_and_action_should_be_triggered {
-		var view = aDetached2x2View;
+		var view = GRView.newDetached(2, 2);
 		var listener = MockViewLedRefreshedListener.new(view);
 		var actionListener = MockActionListener.new(view);
+		view.id = \abc;
 
 		view.valueAction = \xyz;
 
 		this.assert(
 			listener.hasBeenNotifiedOf(
 				[
-					( source: \aDetached2x2View, point: Point.new(0, 0), on: false ),
-					( source: \aDetached2x2View, point: Point.new(1, 0), on: false ),
-					( source: \aDetached2x2View, point: Point.new(0, 1), on: false ),
-					( source: \aDetached2x2View, point: Point.new(1, 1), on: false )
+					( source: \abc, point: Point.new(0, 0), on: false ),
+					( source: \abc, point: Point.new(1, 0), on: false ),
+					( source: \abc, point: Point.new(0, 1), on: false ),
+					( source: \abc, point: Point.new(1, 1), on: false )
 				]
 			)
 		);
@@ -345,7 +332,7 @@ GRViewTests : Test {
 	}
 
 	test_when_a_views_value_is_set_but_not_changed_using_value_action_the_view_should_not_be_refreshed_and_no_action_should_be_triggered {
-		var view = aDetached2x2View;
+		var view = GRView.newDetached(2, 2);
 		var listener;
 		var actionListener;
 		view.value = \abc;
@@ -360,26 +347,27 @@ GRViewTests : Test {
 
 	// button events and state
 	test_it_should_be_possible_to_send_a_button_event_to_a_view_and_get_a_response_of_how_the_event_was_handled {
-		var response;
-
-		response = aDetached4x4View.press(Point.new(0, 0));
-		this.assertEqual( [ ( view: aDetached4x4View, point: Point.new(0, 0) ) ], response );
+		var view = GRView.new;
+		var response = view.press(Point.new(0, 0));
+		this.assertEqual( [ ( view: view, point: Point.new(0, 0) ) ], response );
 	}
 
 	test_button_state_should_be_saved_for_each_view_and_should_be_updated_by_incoming_button_events {
-		aDetached4x4View.press(Point.new(0, 0));
-		this.assert( aDetached4x4View.isPressedAt(Point.new(0, 0)) );
+		var view = GRView.new;
+		view.press(Point.new(0, 0));
+		this.assert( view.isPressedAt(Point.new(0, 0)) );
 
-		aDetached4x4View.release(Point.new(0, 0));
-		this.assert( aDetached4x4View.isReleasedAt(Point.new(0, 0)) );
+		view.release(Point.new(0, 0));
+		this.assert( view.isReleasedAt(Point.new(0, 0)) );
 	}
 
 	test_all_buttons_of_a_view_should_be_released_on_creation {
-		this.assert( aDetached4x4View.allReleased );
+		var view = GRView.new(nil, nil, 4, 4);
+		this.assert( view.allReleased );
 	}
 
 	test_when_the_button_state_of_a_view_is_updated_by_incoming_button_events_the_views_view_button_state_changed_actions_should_be_triggered_with_notification_of_the_update {
-		var view = aDetached4x4View;
+		var view = GRView.newDetached(4, 4);
 		var viewButtonStateChangedListener = MockViewButtonStateChangedListener.new(view);
 		view.press(Point.new(1, 1));
 		view.release(Point.new(1, 1));
@@ -395,19 +383,19 @@ GRViewTests : Test {
 	}
 
 	test_a_disabled_view_should_not_respond_to_button_events {
-		var view = aDisabled4x4View;
+		var view = GRView.newDisabled(nil, nil, 4, 4);
 		var response = view.press(Point.new(0, 0));
 		this.assertEqual(nil, response);
 	}
 
 	test_a_disabled_view_should_not_update_button_state_according_to_incoming_button_events {
-		var view = aDisabled4x4View;
+		var view = GRView.newDisabled(nil, nil, 4, 4);
 		view.press(Point.new(0, 0));
 		this.assert(view.isReleasedAt(Point.new(0, 0)));
 	}
 
 	test_subsequent_button_events_of_the_same_type_and_on_the_same_button_should_be_ignored {
-		var view = aDetached4x4View;
+		var view = GRView.newDetached(4, 4);
 		var response;
 		var viewButtonStateChangedListener = MockViewButtonStateChangedListener.new(view);
 
@@ -479,7 +467,7 @@ GRViewTests : Test {
 	}
 
 	test_it_should_be_possible_to_determine_how_many_buttons_on_a_view_are_pressed {
-		var view = aDetached4x4View;
+		var view = GRView.newDetached(4, 4);
 
 		view.press(Point.new(0, 0));
 		view.press(Point.new(1, 1));
@@ -489,7 +477,7 @@ GRViewTests : Test {
 	}
 
 	test_it_should_be_possible_to_determine_how_many_buttons_within_a_specified_part_of_a_view_are_pressed {
-		var view = aDetached4x4View;
+		var view = GRView.newDetached(4, 4);
 
 		view.press(Point.new(0, 0));
 		view.press(Point.new(1, 1));
@@ -499,7 +487,7 @@ GRViewTests : Test {
 	}
 
 	test_it_should_be_possible_to_determine_how_many_buttons_on_a_view_are_released {
-		var view = aDetached4x4View;
+		var view = GRView.newDetached(4, 4);
 
 		view.press(Point.new(0, 0));
 		view.press(Point.new(1, 1));
@@ -509,7 +497,7 @@ GRViewTests : Test {
 	}
 
 	test_it_should_be_possible_to_determine_how_many_buttons_within_a_specified_part_of_a_view_are_released {
-		var view = aDetached4x4View;
+		var view = GRView.newDetached(4, 4);
 
 		view.press(Point.new(0, 0));
 		view.press(Point.new(1, 1));
@@ -519,7 +507,7 @@ GRViewTests : Test {
 	}
 
 	test_it_should_be_possible_to_determine_if_any_button_on_a_view_is_pressed {
-		var view = aDetached2x2View;
+		var view = GRView.newDetached(2, 2);
 
 		this.assertEqual(false, view.anyPressed);
 
@@ -529,7 +517,7 @@ GRViewTests : Test {
 	}
 
 	test_it_should_be_possible_to_determine_if_any_button_within_a_specified_part_of_a_view_is_pressed {
-		var view = aDetached4x4View;
+		var view = GRView.newDetached(4, 4);
 
 		view.press(Point.new(0, 0));
 
@@ -541,7 +529,7 @@ GRViewTests : Test {
 	}
 
 	test_it_should_be_possible_to_determine_if_all_buttons_on_a_view_are_pressed {
-		var view = aDetached2x2View;
+		var view = GRView.newDetached(2, 2);
 
 		this.assertEqual(false, view.allPressed);
 
@@ -551,7 +539,7 @@ GRViewTests : Test {
 	}
 
 	test_it_should_be_possible_to_determine_if_all_buttons_within_a_specified_part_of_a_view_are_pressed {
-		var view = aDetached4x4View;
+		var view = GRView.newDetached(4, 4);
 
 		view.press(Point.new(0, 0));
 
@@ -563,7 +551,7 @@ GRViewTests : Test {
 	}
 
 	test_it_should_be_possible_to_determine_if_any_button_on_a_view_is_released {
-		var view = aDetached2x2View;
+		var view = GRView.newDetached(2, 2);
 
 		this.assert(view.anyReleased);
 
@@ -579,7 +567,7 @@ GRViewTests : Test {
 	}
 
 	test_it_should_be_possible_to_determine_if_any_button_within_a_specified_part_of_a_view_is_released {
-		var view = aDetached4x4View;
+		var view = GRView.newDetached(4, 4);
 
 		this.assert(view.anyReleasedWithinBounds(Point.new(1, 1), 2, 2));
 
@@ -595,7 +583,7 @@ GRViewTests : Test {
 	}
 
 	test_it_should_be_possible_to_determine_if_all_buttons_on_a_view_are_released {
-		var view = aDetached2x2View;
+		var view = GRView.newDetached(2, 2);
 
 		this.assert(view.allReleased);
 
@@ -611,7 +599,7 @@ GRViewTests : Test {
 	}
 
 	test_it_should_be_possible_to_determine_if_all_buttons_within_a_specified_part_of_a_view_are_released {
-		var view = aDetached4x4View;
+		var view = GRView.newDetached(4, 4);
 
 		this.assert(view.allReleasedWithinBounds(Point.new(1, 1), 2, 2));
 
@@ -627,7 +615,7 @@ GRViewTests : Test {
 	}
 
 	test_it_should_be_possible_to_determine_which_of_the_currently_pressed_buttons_on_a_view_was_pressed_first {
-		var view = aDetached4x4View;
+		var view = GRView.newDetached(4, 4);
 
 		this.assertEqual(nil, view.firstPressed);
 
@@ -643,7 +631,7 @@ GRViewTests : Test {
 	}
 
 	test_it_should_be_possible_to_determine_which_of_the_currently_pressed_buttons_on_a_view_was_pressed_last {
-		var view = aDetached4x4View;
+		var view = GRView.newDetached(4, 4);
 
 		this.assertEqual(nil, view.lastPressed);
 
@@ -660,7 +648,7 @@ GRViewTests : Test {
 	}
 
 	test_it_should_be_possible_to_determine_in_what_order_currently_pressed_buttons_have_been_pressed_on_a_view {
-		var view = aDetached4x4View;
+		var view = GRView.newDetached(4, 4);
 
 		view.press(Point.new(3, 3));
 		view.press(Point.new(0, 0));
@@ -679,7 +667,7 @@ GRViewTests : Test {
 	}
 
 	test_it_should_be_possible_to_determine_in_what_order_currently_pressed_buttons_within_a_specified_part_of_a_view_have_been_pressed {
-		var view = aDetached4x4View;
+		var view = GRView.newDetached(4, 4);
 
 		view.press(Point.new(3, 3));
 		view.press(Point.new(0, 0));
@@ -697,7 +685,7 @@ GRViewTests : Test {
 	}
 
 	test_it_should_be_possible_to_determine_which_left_right_top_and_bottommost_buttons_are_pressed_on_a_view {
-		var view = aDetached4x4View;
+		var view = GRView.newDetached(4, 4);
 
 		this.assertEqual([], view.leftmostPressed);
 		this.assertEqual(nil, view.leftmostColPressed);
@@ -739,7 +727,7 @@ GRViewTests : Test {
 	}
 
 	test_when_a_view_is_disabled_all_pressed_buttons_of_view_should_be_released {
-		var view = aDetached4x4View;
+		var view = GRView.newDetached(4, 4);
 		view.asPoints.do { |point| view.press(point) };
 		view.disable;
 		this.assert(view.allReleased)
@@ -747,12 +735,12 @@ GRViewTests : Test {
 
 	// out of bounds errors
 	test_an_out_of_bounds_button_state_check_should_throw_an_error {
-		var view = aDetached4x4View;
+		var view = GRView.newDetached(4, 4);
 		this.assertErrorThrown( Error, { view.isPressedAt( Point.new(4, 4) ) } );
 	}
 
 	test_an_out_of_bounds_button_event_should_throw_an_error {
-		var view = aDetached2x3View;
+		var view = GRView.newDetached(2, 3);
 
 		this.assertErrorThrown( Error, { view.press( Point.new(-1, 0) ) } );
 		this.assertErrorThrown( Error, { view.press( Point.new(0, -1) ) } );
@@ -763,12 +751,12 @@ GRViewTests : Test {
 	}
 
 	test_an_out_of_bounds_led_state_check_should_throw_an_error {
-		var view = aDetached4x4View;
+		var view = GRView.newDetached(4, 4);
 		this.assertErrorThrown( Error, { view.isLitAt( Point.new(4, 4) ) } );
 	}
 
 	test_an_out_of_bounds_refresh_point_should_throw_an_error {
-		var view = aDetached4x4View;
+		var view = GRView.newDetached(4, 4);
 		this.assertErrorThrown( Error, { view.refreshPoint( Point.new(4, 4) ) } );
 	}
 
@@ -811,67 +799,70 @@ GRViewTests : Test {
 
 	// led events and refresh
 	test_when_a_point_of_an_enabled_view_is_refreshed_the_views_view_led_refreshed_actions_should_get_notified_of_the_refreshed_led_and_its_state {
-		var view = aDetached4x4View;
+		var view = GRView.newDetached(4, 4);
 		var listener = MockViewLedRefreshedListener.new(view);
+		view.id = \abc;
 
 		view.refreshPoint(Point.new(1, 1));
 		this.assert(
 			listener.hasBeenNotifiedOf(
 				[
-					( source: \aDetached4x4View, point: Point.new(1, 1), on: false )
+					( source: \abc, point: Point.new(1, 1), on: false )
 				]
 			)
 		);
 	}
 
 	test_when_bounds_of_an_enabled_view_is_refreshed_the_views_view_led_refreshed_actions_should_get_notified_of_refreshed_leds_and_their_state {
-		var view = aDetached4x4View;
+		var view = GRView.newDetached(4, 4);
 		var listener = MockViewLedRefreshedListener.new(view);
+		view.id = \abc;
 
 		view.refreshBounds(Point.new(2, 2), 2, 2);
 		this.assert(
 			listener.hasBeenNotifiedOf(
 				[
-					( source: \aDetached4x4View, point: Point.new(2, 2), on: false ),
-					( source: \aDetached4x4View, point: Point.new(3, 2), on: false ),
-					( source: \aDetached4x4View, point: Point.new(2, 3), on: false ),
-					( source: \aDetached4x4View, point: Point.new(3, 3), on: false )
+					( source: \abc, point: Point.new(2, 2), on: false ),
+					( source: \abc, point: Point.new(3, 2), on: false ),
+					( source: \abc, point: Point.new(2, 3), on: false ),
+					( source: \abc, point: Point.new(3, 3), on: false )
 				]
 			)
 		);
 	}
 
 	test_when_an_entire_enabled_view_is_refreshed_the_views_view_led_refreshed_actions_should_get_notified_of_refreshed_leds_and_their_state {
-		var view = aDetached4x4View;
+		var view = GRView.newDetached(4, 4);
 		var listener = MockViewLedRefreshedListener.new(view);
+		view.id = \abc;
 
 		view.refresh;
 		this.assert(
 			listener.hasBeenNotifiedOf(
 				[
-					( source: \aDetached4x4View, point: Point.new(0, 0), on: false ),
-					( source: \aDetached4x4View, point: Point.new(1, 0), on: false ),
-					( source: \aDetached4x4View, point: Point.new(2, 0), on: false ),
-					( source: \aDetached4x4View, point: Point.new(3, 0), on: false ),
-					( source: \aDetached4x4View, point: Point.new(0, 1), on: false ),
-					( source: \aDetached4x4View, point: Point.new(1, 1), on: false ),
-					( source: \aDetached4x4View, point: Point.new(2, 1), on: false ),
-					( source: \aDetached4x4View, point: Point.new(3, 1), on: false ),
-					( source: \aDetached4x4View, point: Point.new(0, 2), on: false ),
-					( source: \aDetached4x4View, point: Point.new(1, 2), on: false ),
-					( source: \aDetached4x4View, point: Point.new(2, 2), on: false ),
-					( source: \aDetached4x4View, point: Point.new(3, 2), on: false ),
-					( source: \aDetached4x4View, point: Point.new(0, 3), on: false ),
-					( source: \aDetached4x4View, point: Point.new(1, 3), on: false ),
-					( source: \aDetached4x4View, point: Point.new(2, 3), on: false ),
-					( source: \aDetached4x4View, point: Point.new(3, 3), on: false )
+					( source: \abc, point: Point.new(0, 0), on: false ),
+					( source: \abc, point: Point.new(1, 0), on: false ),
+					( source: \abc, point: Point.new(2, 0), on: false ),
+					( source: \abc, point: Point.new(3, 0), on: false ),
+					( source: \abc, point: Point.new(0, 1), on: false ),
+					( source: \abc, point: Point.new(1, 1), on: false ),
+					( source: \abc, point: Point.new(2, 1), on: false ),
+					( source: \abc, point: Point.new(3, 1), on: false ),
+					( source: \abc, point: Point.new(0, 2), on: false ),
+					( source: \abc, point: Point.new(1, 2), on: false ),
+					( source: \abc, point: Point.new(2, 2), on: false ),
+					( source: \abc, point: Point.new(3, 2), on: false ),
+					( source: \abc, point: Point.new(0, 3), on: false ),
+					( source: \abc, point: Point.new(1, 3), on: false ),
+					( source: \abc, point: Point.new(2, 3), on: false ),
+					( source: \abc, point: Point.new(3, 3), on: false )
 				]
 			)
 		);
 	}
 
 	test_refreshing_a_disabled_view_should_throw_an_error {
-		var view = aDisabled2x2View;
+		var view = GRView.newDisabled(nil, nil, 2, 2);
 
 		this.assertErrorThrown(Error) { view.refresh };
 		this.assertErrorThrown(Error) { view.refreshBounds(Point.new(1, 1), 1, 1) };
@@ -879,18 +870,19 @@ GRViewTests : Test {
 	}
 
 	test_when_a_disabled_view_is_enabled_it_should_be_refreshed {
-		var view = aDisabled2x2View;
+		var view = GRView.newDisabled(nil, nil, 2, 2);
 		var listener = MockViewLedRefreshedListener.new(view);
+		view.id = \abc;
 
 		view.enable;
 
 		this.assert(
 			listener.hasBeenNotifiedOf(
 				[
-					( source: \aDisabled2x2View, point: Point.new(0, 0), on: false ),
-					( source: \aDisabled2x2View, point: Point.new(1, 0), on: false ),
-					( source: \aDisabled2x2View, point: Point.new(0, 1), on: false ),
-					( source: \aDisabled2x2View, point: Point.new(1, 1), on: false ),
+					( source: \abc, point: Point.new(0, 0), on: false ),
+					( source: \abc, point: Point.new(1, 0), on: false ),
+					( source: \abc, point: Point.new(0, 1), on: false ),
+					( source: \abc, point: Point.new(1, 1), on: false ),
 				]
 			)
 		);
