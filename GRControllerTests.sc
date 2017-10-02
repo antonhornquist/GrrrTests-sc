@@ -6,6 +6,7 @@ GRControllerTests : Test {
 	}
 
 	teardown {
+		GRController.all.do { |controller| controller.remove };
 		GRTestsHelper.restoreGlobals;
 	}
 

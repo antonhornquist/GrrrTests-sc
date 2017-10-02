@@ -164,19 +164,11 @@ MockController : GRController {
 	}
 
 	init {
-		this.resetViewButtonStateChangedNotifications;
-		this.resetViewLedRefreshedNotifications;
+		viewButtonStateChangedNotifications = [];
+		viewLedRefreshedNotifications = [];
 		registerNotifications = false;
 		this.refresh;
 		registerNotifications = true;
-	}
-
-	resetViewButtonStateChangedNotifications { // TODO: probably possible to remove
-		viewButtonStateChangedNotifications = []
-	}
-
-	resetViewLedRefreshedNotifications { // TODO: probably possible to remove
-		viewLedRefreshedNotifications = []
 	}
 
 	handleViewButtonStateChangedEvent { |point, pressed|
