@@ -683,16 +683,4 @@ GRContainerViewTests : Test {
 			subclass.addChild(GRView.newDetached(4, 4), Point.new(0, 0))
 		};
 	}
-
-	// view switching
-	test_it_should_be_possible_to_switch_between_views_by_index {
-		var container = GRContainerView.newDetached(4, 4);
-		var child2;
-		GRView.new(container, Point.new(0, 0), 4, 4);
-		child2 = GRView.newDisabled(container, Point.new(0, 0), 4, 4);
-
-		container.switchToChildByIndex(1);
-
-		this.assertEqual([child2], container.enabledChildren);
-	}
 }
