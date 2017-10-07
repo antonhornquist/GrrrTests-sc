@@ -7,7 +7,7 @@ MockActionListener {
 
 	initMockActionListener { |argView|
 		view = argView;
-		listener = this.prCreateListener(view);
+		listener = this.prCreateListener;
 		view.addAction(listener, this.prSelector);
 		notifications = Array.new;
 	}
@@ -20,7 +20,7 @@ MockActionListener {
 
 	hasNotBeenNotifiedOfAnything { ^notifications.isEmpty }
 
-	prCreateListener { |view|
+	prCreateListener {
 		^{ |... args| notifications = notifications.add( args ) }
 	}
 
@@ -28,7 +28,7 @@ MockActionListener {
 }
 
 MockViewLedRefreshedListener : MockActionListener {
-	prCreateListener { |view|
+	prCreateListener {
 		^{ |source, point, on|
 			notifications = notifications.add(
  				( source: source.id, point: point, on: on )
@@ -39,7 +39,7 @@ MockViewLedRefreshedListener : MockActionListener {
 }
 
 MockViewButtonStateChangedListener : MockActionListener {
-	prCreateListener { |view|
+	prCreateListener {
 		^{ |point, pressed|
 			notifications = notifications.add(
 				( point: point, pressed: pressed )
@@ -197,7 +197,7 @@ MockNoteReleasedListener : MockActionListener {
 }
 
 MockButtonValueChangedListener : MockActionListener {
-	prCreateListener { |view|
+	prCreateListener {
 		^{ |view, x, y, value|
 			notifications = notifications.add(
 				( view: view, x: x, y: y, val: value )
@@ -208,7 +208,7 @@ MockButtonValueChangedListener : MockActionListener {
 }
 
 MockToggleValueChangedListener : MockActionListener {
-	prCreateListener { |view|
+	prCreateListener {
 		^{ |view, i, value|
 			notifications = notifications.add(
 				( view: view, i: i, val: value )
