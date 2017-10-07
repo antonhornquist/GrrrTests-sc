@@ -28,7 +28,6 @@ GRKeyboardTests : Test {
 	// Basenote and keyrange
 
 /*
-	TODO
 	test_it_should_only_be_possible_to_create_a_keyboard_with_a_basenote_that_is_a_white_key_on_the_keyboard {
 		this.assertNoErrorThrown {
 			GRKeyboard.newDetached(7, 72)
@@ -48,7 +47,6 @@ GRKeyboardTests : Test {
 	}
 
 /*
-	TODO
 	test_it_should_not_be_possible_to_change_basenote_to_a_note_that_is_not_a_white_key_on_the_keyboard {
 		var keyboard = GRKeyboard.newDetached(7, 60);
 		
@@ -70,7 +68,6 @@ GRKeyboardTests : Test {
 	}
 
 /*
-	TODO
 	test_when_basenote_is_changed_the_keyboard_should_automatically_refresh {
 		var keyboard = GRKeyboard.newDetached(7, 60);
 		var listener = MockViewLedRefreshedListener.new(keyboard);

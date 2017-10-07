@@ -198,9 +198,9 @@ MockNoteReleasedListener : MockActionListener {
 
 MockButtonValueChangedListener : MockActionListener {
 	prCreateListener { |view|
-		^{ |view, x, y, value| // TODO: change to just view in ruby: multibutton implicit
+		^{ |view, x, y, value|
 			notifications = notifications.add(
-				( view: view, x: x, y: y, val: value ) // TODO: change to just view in test, change to val in test?
+				( view: view, x: x, y: y, val: value )
 			)
 		}
 	}
@@ -209,9 +209,9 @@ MockButtonValueChangedListener : MockActionListener {
 
 MockToggleValueChangedListener : MockActionListener {
 	prCreateListener { |view|
-		^{ |view, i, value| // TODO: change to just view in ruby: multibutton implicit
+		^{ |view, i, value|
 			notifications = notifications.add(
-				( view: view, i: i, val: value ) // TODO: change to just view in test
+				( view: view, i: i, val: value )
 			)
 		}
 	}
@@ -250,7 +250,6 @@ MockLedEventListener : AbstractMockListener {
 	var listener;
 
 	addListener { |argView|
-		// TODO raise "listener already set" if @listener
 		view = argView;
 		listener = { |source, point, on|
 			notifications = notifications.add( ( source: source.id, point: point, on: on ) )
@@ -268,7 +267,6 @@ MockButtonEventListener : AbstractMockListener {
 	var listener;
 
 	addListener { |argView|
-		// TODO raise "listener already set" if @listener
 		view = argView;
 		listener = { |point, pressed|
 			notifications = notifications.add( ( point: point, pressed: pressed ) )

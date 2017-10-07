@@ -134,7 +134,7 @@ GRToggleTests : Test {
 		);
 	}
 
-	test_if_several_buttons_get_pressed_on_view_and_the_min_and_max_values_of_the_pressed_buttons_get_changed_toggle_range_pressed_action_should_be_triggered { // TODO: this is fucking great, use it in an app
+	test_if_several_buttons_get_pressed_on_view_and_the_min_and_max_values_of_the_pressed_buttons_get_changed_toggle_range_pressed_action_should_be_triggered {
 		var toggle = GRHToggle.newDetached(4, 1);
 		var listener = MockToggleRangePressedListener.new(toggle);
 
