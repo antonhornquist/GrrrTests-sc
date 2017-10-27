@@ -21,3 +21,11 @@ GRMultiToggleViewTests.runAllTests;
 
 GrrrTest-sc requires [Grrr-sc](http://github.com/antonhornquist/Grrr-sc) and the [Test-sc](http://github.com/antonhornquist/Test-sc) library. This code has been developed and tested in SuperCollider 3.8.0.
 
+## Installation
+
+Install the [Grrr-sc](http://github.com/antonhornquist/Grrr-sc) and [Test-sc](http://github.com/antonhornquist/Test-sc) dependencies.
+
+Copy the GrrrTests-sc folder to the user-specific or system-wide extension directory. Recompile the SuperCollider class library.
+
+The user-specific extension directory may be retrieved by evaluating Platform.userExtensionDir in SuperCollider, the system-wide by evaluating Platform.systemExtensionDir.
+
