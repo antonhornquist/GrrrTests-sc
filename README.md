@@ -10,9 +10,9 @@ GRControllerTests.runAllTests;
 GRViewTests.runAllTests;
 GRContainerViewTests.runAllTests;
 GRTopViewTests.runAllTests;
-GRButtonViewTests.runAllTests;
-GRToggleViewTests.runAllTests;
-GRKeyboardViewTests.runAllTests;
+GRButtonTests.runAllTests;
+GRToggleTests.runAllTests;
+GRKeyboardTests.runAllTests;
 GRMultiButtonViewTests.runAllTests;
 GRMultiToggleViewTests.runAllTests;
 ```
