@@ -651,42 +651,4 @@ GRContainerViewTests : Test {
 			topContainer.asTree(true)
 		);
 	}
-
-	// subclassing
-	test_it_should_be_possible_to_create_a_subclass_of_container_that_do_not_indicate_enabled_children_in_plot {
-		var subclass = MockContainerViewSubclassThatActsAsAView.newDetached(4, 3);
-
-		subclass.press(Point.new(1, 2));
-		subclass.press(Point.new(3, 0));
-
-		this.assertEqual(
-			"  0 1 2 3      0 1 2 3\n" ++
-			"0 - - - P    0 - - - L\n" ++
-			"1 - - - -    1 - - - -\n" ++
-			"2 - P - -    2 - - - -\n",
-			subclass.asPlot
-		);
-	}
-
-	test_it_should_be_possible_to_create_a_subclass_of_container_that_do_not_recursively_plot_children {
-		var subclass = MockContainerViewSubclassThatActsAsAView.newDetached(4, 3);
-
-		this.assertEqual(
-			"a MockContainerViewSubclassThatActsAsAView (4x3, enabled)\n" ++
-			"  0 1 2 3      0 1 2 3\n" ++
-			"0 - - - -    0 - - - -\n" ++
-			"1 - - - -    1 - - - -\n" ++
-			"2 - - - -    2 - - - -\n" ++
-			"\n",
-			subclass.asTree(true)
-		);
-	}
-
-	test_it_should_be_possible_to_create_a_subclass_of_container_that_do_not_allow_addition_and_removal_of_children {
-		var subclass = MockContainerViewSubclassThatActsAsAView.newDetached(8, 8);
-
-		this.assertErrorThrown(Error) {
-			subclass.addChild(GRView.newDetached(4, 4), Point.new(0, 0))
-		};
-	}
 }

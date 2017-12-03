@@ -135,26 +135,6 @@ MockOddColsLitContainerView : GRContainerView {
 	}
 }
 
-MockContainerViewSubclassThatActsAsAView : GRContainerView {
-	*new { |parent, origin, numCols=nil, numRows=nil|
-		^super.new(parent, origin, numCols, numRows, true, true).init;
-	}
-
-	init {
-		var button1;
-		var button2;
-		actsAsView = true;
-		button1 = GRButton.newDetached(1, 1);
-		button2 = GRButton.newDetached(1, 1);
-		this.prAddChild(button1, Point.new(3, 0), true);
-		this.prAddChild(button2, Point.new(2, 1), true);
-	}
-
-	newDetached { |numCols, numRows|
-		^this.new(nil, nil, numCols, numRows);
-	}
-}
-
 MockController : GRController {
 	var <viewButtonStateChangedNotifications, <viewLedRefreshedNotifications;
 	var registerNotifications;

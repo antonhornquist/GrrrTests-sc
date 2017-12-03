@@ -14,31 +14,31 @@ GRMultiButtonViewTests : Test {
 
 		this.assertEqual(
 			view.buttonArraySize,
-			[4, 4]
+			Point.new(4, 4)
 		);
 	}
 
 	// button array size
 	test_it_should_be_possible_to_change_the_button_array_size_of_a_multibuttonview {
 		var view = GRMultiButtonView.newDetached(4, 4);
-		view.buttonArraySize = [2, 2];
+		view.buttonArraySize = Point.new(2, 2);
 
 		this.assertEqual(
 			view.buttonArraySize,
-			[2, 2]
+			Point.new(2, 2)
 		);
 	}
 
 	test_it_should_not_be_possible_to_change_the_button_array_size_of_a_multibuttonview_so_that_num_cols_of_the_view_is_not_divisable_by_num_button_cols {
 		var view = GRMultiButtonView.newDetached(4, 4);
 
-		this.assertErrorThrown(Error) { view.buttonArraySize = [3, 2] };
+		this.assertErrorThrown(Error) { view.buttonArraySize = Point.new(3, 2) };
 	}
 
 	test_it_should_not_be_possible_to_change_the_button_array_size_of_a_multibuttonview_so_that_num_rows_of_the_view_is_not_divisable_by_num_button_rows {
 		var view = GRMultiButtonView.newDetached(4, 4);
 
-		this.assertErrorThrown(Error) { view.buttonArraySize = [2, 3] };
+		this.assertErrorThrown(Error) { view.buttonArraySize = Point.new(2, 3) };
 	}
 
 	// value
