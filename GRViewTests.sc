@@ -385,7 +385,7 @@ GRViewTests : Test {
 	test_a_disabled_view_should_not_respond_to_button_events {
 		var view = GRView.newDisabled(nil, nil, 4, 4);
 		var response = view.press(Point.new(0, 0));
-		this.assertEqual(nil, response);
+		this.assertEqual([], response);
 	}
 
 	test_a_disabled_view_should_not_update_button_state_according_to_incoming_button_events {
