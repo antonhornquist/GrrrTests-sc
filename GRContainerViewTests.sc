@@ -80,6 +80,12 @@ GRContainerViewTests : Test {
 		this.assertEqual(Point.new(2, 2), view2.origin);
 	}
 
+	test_it_should_not_be_possible_to_attach_a_parent_of_a_container_view_as_its_child_view {
+		var parentContainer = GRContainerView.newDetached(4, 4);
+		var container = GRContainerView.new(parentContainer, Point.new(0, 0), 4, 4);
+		this.assertErrorThrown(Error) { container.addChild(parentContainer, Point.new(0, 0)) };
+	}
+
 	test_it_should_be_possible_to_remove_child_views_from_a_container_view {
 		var container = GRContainerView.newDetached(4, 4);
 		var view1 = GRView.newDetached(2, 2);
